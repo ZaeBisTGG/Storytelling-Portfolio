@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECLIPSE | Digital Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #111;
+            --accent: #ffffff;
+            --text-dim: #888;
+            --primary-glow: rgba(255, 255, 255, 0.15);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            background-color: var(--bg);
+            color: var(--accent);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            cursor: none; /* Скрываем стандартный курсор */
+        }
+
+        /* Эффект зернистости (Noise) */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Кастомный курсор */
+        .cursor {
+            width: 20px; height: 20px;
+            border: 1px solid white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s, width 0.3s, height 0.3s;
+            mix-blend-mode: difference;
+        }
+        .cursor.hovered {
+            width: 50px; height: 50px;
+            background: white;
+            opacity: 0.1;
+        }
+
+        /* Анимации появления */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            filter: blur(10px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+
+        /* Hero секция */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(4rem, 12vw, 9rem);
+            margin: 0;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            background: linear-gradient(180deg, #fff, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
+
+        .hero p {
+            margin-top: 1rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Story */
+        .story-section {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 150px 20px;
+            text-align: center;
+        }
+        .story-section p {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+        .highlight { color: #fff; font-weight: 600; }
+
+        /* Слайдер сравнения */
+        .comparison-wrapper {
+            padding: 50px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .comp-container {
+            position: relative;
+            width: 90vw;
+            max-width: 1100px;
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            cursor: ew-resize; /* Курсор изменения ширины */
+        }
+
+        .comp-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .comp-img img {
+            width: 100%; height: 100%; object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* Верхнее изображение (Overlay) */
+        .overlay-img {
+            width: 50%; /* Начальная позиция */
+            border-right: 2px solid white;
+            z-index: 2;
+            overflow: hidden; /* Важно! */
+        }
+        
+        /* Кнопка-слайдер по центру */
+        .slider-handle {
+            position: absolute;
+            top: 50%; right: -20px;
+            width: 40px; height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            transform: translateY(-50%);
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            z-index: 3;
+        }
+
+        /* Bento Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-auto-rows: 250px;
+            gap: 20px;
+            padding: 100px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Для десктопа делаем сложную сетку */
+        @media(min-width: 900px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(3, 300px);
+            }
+            .grid-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+            .grid-item:nth-child(2) { grid-column: span 2; }
+            .grid-item:nth-child(3) { grid-column: span 1; grid-row: span 1; }
+            .grid-item:nth-child(4) { grid-column: span 1; grid-row: span 1; }
+            .grid-item:nth-child(5) { grid-column: span 4; height: 100%; }
+        }
+
+        .grid-item {
+            background-color: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.4s ease;
+        }
+
+        .grid-item img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease, filter 0.6s ease;
+            filter: grayscale(80%);
+        }
+
+        .grid-item:hover img {
+            transform: scale(1.05);
+            filter: grayscale(0%);
+        }
+
+        .grid-info {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, black, transparent);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .grid-item:hover .grid-info {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        footer {
+            padding: 80px 20px;
+            text-align: center;
+            border-top: 1px solid #222;
+            margin-top: 50px;
+        }
+        
+        .socials a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9rem;
+            position: relative;
+        }
+        .socials a::after {
+            content: '';
+            position: absolute;
+            width: 0; height: 1px;
+            bottom: -5px; left: 0;
+            background: white;
+            transition: width 0.3s;
+        }
+        .socials a:hover::after { width: 100%; }
+
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="cursor" id="cursor"></div>
+
+    <section class="hero">
+        <h1 class="reveal">ECLIPSE</h1>
+        <p class="reveal" style="transition-delay: 0.2s;">Концептуальный Арт • 2026</p>
+    </section>
+
+    <section class="story-section reveal">
+        <p>"В каждой тени скрывается свет. <span class="highlight">ECLIPSE</span> — это исследование грани между реальностью и цифровым сном."</p>
+    </section>
+
+    <section class="comparison-wrapper reveal">
+        <div class="comp-container" id="compBox">
+            <div class="comp-img">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop" alt="After">
+            </div>
+            <div class="comp-img overlay-img" id="sliderImg">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop" style="filter: invert(1) hue-rotate(180deg);" alt="Before">
+                <div class="slider-handle">⇄</div>
+            </div>
+        </div>
+        <p style="margin-top: 25px; font-size: 0.7rem; color: #555; letter-spacing: 2px;">ПОТЯНИ, ЧТОБЫ УВИДЕТЬ ПРОЦЕСС</p>
+    </section>
+
+    <section class="grid">
+        <div class="grid-item reveal hover-trigger">
+            <img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?q=80&w=800&auto=format&fit=crop">
+            <div class="grid-info"><h3>Neon Genesis</h3></div>
+        </div>
+        <div class="grid-item reveal hover-trigger" style="transition-delay: 0.1s;">
+            <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop">
+            <div class="grid-info"><h3>Void Texture</h3></div>
+        </div>
+        <div class="grid-item reveal hover-trigger" style="transition-delay: 0.2s;">
+            <img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=800&auto=format&fit=crop">
+            <div class="grid-info"><h3>Cyber Face</h3></div>
+        </div>
+        <div class="grid-item reveal hover-trigger" style="transition-delay: 0.3s;">
+            <img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop">
+            <div class="grid-info"><h3>System Failure</h3></div>
+        </div>
+        <div class="grid-item reveal hover-trigger">
+            <img src="https://images.unsplash.com/photo-1504333638930-c8787321eee0?q=80&w=1600&auto=format&fit=crop">
+            <div class="grid-info"><h3>Panoramic Vision</h3></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="socials">
+            <a href="#">ARTSTATION</a>
+            <a href="#">INSTAGRAM</a>
+            <a href="#">BEHANCE</a>
+        </div>
+        <p style="margin-top: 30px; color: #444;">© 2026 YOUR NAME</p>
+    </footer>
+
+    <script>
+        // 1. ЛОГИКА СЛАЙДЕРА (Исправленная)
+        const box = document.getElementById('compBox');
+        const slider = document.getElementById('sliderImg');
+
+        const moveSlider = (e) => {
+            // Поддержка и мыши, и тача
+            let clientX = e.clientX || e.touches[0].clientX;
+            
+            const rect = box.getBoundingClientRect();
+            let x = clientX - rect.left;
+            
+            // Ограничения, чтобы не выходило за рамки
+            if (x < 0) x = 0;
+            if (x > rect.width) x = rect.width;
+            
+            const percent = (x / rect.width) * 100;
+            slider.style.width = percent + '%';
+        };
+
+        box.addEventListener('mousemove', moveSlider);
+        box.addEventListener('touchmove', moveSlider);
+
+        // 2. АНИМАЦИЯ ПОЯВЛЕНИЯ ПРИ СКРОЛЛЕ
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // 3. КАСТОМНЫЙ КУРСОР
+        const cursor = document.getElementById('cursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Эффект увеличения курсора при наведении на активные элементы
+        document.querySelectorAll('a, .comp-container, .hover-trigger').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        });
+    </script>
+</body>
+</html>
