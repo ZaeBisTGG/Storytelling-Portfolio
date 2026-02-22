@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECLIPSE | Digital Art Community</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ECLIPSE | Digital Art Sanctuary</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,84 +17,58 @@
 
         body, html {
             margin: 0; padding: 0;
-            background-color: var(--bg);
-            color: var(--accent);
+            background-color: var(--bg); color: var(--accent);
             font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
-            cursor: none; /* Скрываем стандартный курсор */
-            scroll-behavior: smooth;
+            overflow-x: hidden; scroll-behavior: smooth;
         }
 
-        /* --- BACKGROUND CANVAS --- */
+        /* Убираем стандартный курсор только на устройствах с мышью */
+        @media (hover: hover) and (pointer: fine) {
+            body, a, button, .hover-target { cursor: none; }
+        }
+
         #bgCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; opacity: 0.4; pointer-events: none;
         }
 
-        /* --- CUSTOM CURSOR --- */
+        /* --- КАСТОМНЫЙ КУРСОР --- */
         .cursor-dot, .cursor-outline {
-            position: fixed; top: 0; left: 0;
-            transform: translate(-50%, -50%);
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
             border-radius: 50%; pointer-events: none; z-index: 9999;
         }
-        .cursor-dot {
-            width: 8px; height: 8px; background: white;
-        }
+        .cursor-dot { width: 8px; height: 8px; background: white; }
         .cursor-outline {
             width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.5);
             transition: width 0.2s, height 0.2s, background 0.2s;
         }
-        /* Состояние наведения */
         body.hovering .cursor-outline {
             width: 60px; height: 60px; background: rgba(255, 255, 255, 0.1); border-color: transparent;
         }
 
-        /* --- NAVIGATION --- */
+        /* Отключаем кастомный курсор на мобилках */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-dot, .cursor-outline { display: none !important; }
+        }
+
+        /* --- НАВИГАЦИЯ --- */
         .nav-ui {
             position: fixed; top: 30px; right: 30px; z-index: 100;
             background: var(--glass); backdrop-filter: blur(15px);
-            padding: 10px 25px; border-radius: 40px;
-            border: 1px solid var(--border);
-            display: flex; align-items: center; gap: 15px;
-            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 10px 25px; border-radius: 40px; border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 15px; transition: 0.3s; cursor: pointer;
         }
-        .nav-ui:hover { 
-            background: rgba(255,255,255,0.15); 
-            box-shadow: var(--primary-glow);
-            transform: scale(1.05);
-        }
-        .avatar-nav { 
-            width: 30px; height: 30px; border-radius: 50%; 
-            background: url('https://picsum.photos/seed/user/100') center/cover;
-            border: 1px solid #fff; 
-        }
+        .nav-ui:hover { background: rgba(255,255,255,0.15); box-shadow: var(--primary-glow); transform: scale(1.05); }
+        .avatar-nav { width: 30px; height: 30px; border-radius: 50%; background: url('https://picsum.photos/seed/user/100') center/cover; border: 1px solid #fff; }
 
-        /* --- HERO & GLITCH EFFECT --- */
-        .hero {
-            height: 100vh; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; text-align: center;
-            position: relative;
-        }
-        
+        /* --- ГЕРОЙ & ГЛИТЧ --- */
+        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .glitch-wrapper { position: relative; }
-        .hero h1 {
-            font-family: 'Cinzel', serif; font-size: clamp(4rem, 12vw, 9rem); margin: 0;
-            color: #fff; letter-spacing: 5px;
-            position: relative;
-        }
+        .hero h1 { font-family: 'Cinzel', serif; font-size: clamp(3rem, 10vw, 8rem); margin: 0; color: #fff; letter-spacing: 5px; position: relative; }
+        .hero h1::before, .hero h1::after { content: "ECLIPSE"; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); opacity: 0.8; }
+        .hero h1::before { color: #0ff; z-index: -1; animation: glitch-anim-1 2.5s infinite linear alternate-reverse; }
+        .hero h1::after { color: #f0f; z-index: -2; animation: glitch-anim-2 3s infinite linear alternate-reverse; }
         
-        /* Глитч анимация */
-        .hero h1::before, .hero h1::after {
-            content: "ECLIPSE"; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); opacity: 0.8;
-        }
-        .hero h1::before {
-            color: #0ff; z-index: -1; animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
-        }
-        .hero h1::after {
-            color: #f0f; z-index: -2; animation: glitch-anim-2 3s infinite linear alternate-reverse;
-        }
-
         @keyframes glitch-anim-1 {
             0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
             20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
@@ -110,103 +84,57 @@
             100% { clip-path: inset(55% 0 10% 0); transform: translate(1px, 1px); }
         }
 
-        .subtitle {
-            font-size: 1.2rem; letter-spacing: 8px; color: #888; margin-top: 20px;
-            opacity: 0; animation: fadeUp 1s ease 1s forwards;
-        }
+        .subtitle { font-size: clamp(0.8rem, 2vw, 1.2rem); letter-spacing: 8px; color: #888; margin-top: 20px; opacity: 0; animation: fadeUp 1s ease 1s forwards; }
 
-        /* --- SLIDER --- */
-        .comparison-wrapper { padding: 100px 0; display: flex; flex-direction: column; align-items: center; }
-        .comp-container {
-            position: relative; width: 90vw; max-width: 1100px; aspect-ratio: 16/9;
-            border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
+        /* --- СЛАЙДЕР ДО/ПОСЛЕ --- */
+        .comparison-wrapper { padding: 100px 20px; display: flex; flex-direction: column; align-items: center; touch-action: none; /* Запрет скролла при касании */ }
+        .comp-container { position: relative; width: 100%; max-width: 1100px; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); cursor: crosshair; }
         .comp-img { position: absolute; inset: 0; pointer-events: none; }
         .comp-img img { width: 100%; height: 100%; object-fit: cover; }
         .overlay-img { width: 50%; z-index: 2; border-right: 2px solid white; will-change: width; }
-        
-        .drag-line {
-            position: absolute; top: 0; bottom: 0; left: 50%; width: 40px; transform: translateX(-50%);
-            z-index: 10; cursor: ew-resize; display: flex; align-items: center; justify-content: center;
-        }
+        .drag-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 40px; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; }
         .drag-circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; }
 
-        /* --- TOP CARDS (3D TILT) --- */
+        /* --- 3D КАРТОЧКИ --- */
         .top-section { padding: 50px 20px; max-width: 1400px; margin: 0 auto; perspective: 1000px; }
         .top-grid { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
-        
-        .tilt-card {
-            width: 350px; height: 500px; border-radius: 20px; 
-            background: var(--surface); border: 1px solid var(--border);
-            position: relative; overflow: hidden; transition: transform 0.1s;
-            transform-style: preserve-3d;
-        }
-        
-        .tilt-card img {
-            width: 100%; height: 100%; object-fit: cover; 
-            transition: transform 0.5s; position: absolute; inset: 0;
-        }
+        .tilt-card { width: 320px; height: 450px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); position: relative; overflow: hidden; transform-style: preserve-3d; cursor: pointer; }
+        .tilt-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; position: absolute; inset: 0; }
         .tilt-card:hover img { transform: scale(1.1); }
-        
-        .card-content {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px;
-            background: linear-gradient(to top, #000 0%, transparent 100%);
-            transform: translateZ(30px); /* 3D pop effect */
-        }
-        .rank { 
-            position: absolute; top: 20px; left: 20px; 
-            font-size: 4rem; font-family: 'Cinzel'; color: rgba(255,255,255,0.1); font-weight: bold;
-            transform: translateZ(20px);
-        }
+        .card-content { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); transform: translateZ(30px); }
+        .rank { position: absolute; top: 20px; left: 20px; font-size: 3rem; font-family: 'Cinzel'; color: rgba(255,255,255,0.2); font-weight: bold; transform: translateZ(20px); }
 
-        /* --- FEED --- */
-        .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .feed-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 20px 100px 20px; 
-        }
-        
-        .art-card {
-            background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
-            transition: 0.3s; position: relative;
-        }
+        /* --- ЛЕНТА АРТОВ --- */
+        .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; max-width: 1200px; margin: 0 auto; padding: 0 20px; flex-wrap: wrap; gap: 20px; }
+        .feed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 20px 100px 20px; }
+        .art-card { background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: 0.3s; position: relative; cursor: zoom-in; }
         .art-card:hover { transform: translateY(-5px); border-color: #555; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .art-img { height: 300px; width: 100%; object-fit: cover; display: block; }
+        .art-img { height: 300px; width: 100%; object-fit: cover; display: block; transition: 0.3s; }
+        .art-card:hover .art-img { opacity: 0.8; }
         .art-info { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .like-btn { background: none; border: none; color: #666; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        .like-btn:hover { color: #ff3b30; transform: scale(1.2); }
+        .like-btn.liked { color: #ff3b30; }
 
-        /* --- BUTTONS --- */
-        .btn-main {
-            padding: 12px 30px; background: #fff; color: #000; border: none; border-radius: 30px;
-            font-weight: 700; font-family: 'Montserrat'; cursor: pointer; transition: 0.3s;
-        }
+        /* --- КНОПКИ --- */
+        .btn-main { padding: 12px 25px; background: #fff; color: #000; border: none; border-radius: 30px; font-weight: 700; font-family: 'Montserrat'; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
         .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
 
-        /* --- MODALS --- */
-        .modal { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; 
-            display: none; justify-content: center; align-items: center; 
-            backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s;
-        }
+        /* --- МОДАЛЬНЫЕ ОКНА & LIGHTBOX --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s; padding: 20px; }
         .modal.open { display: flex; opacity: 1; }
-        .modal-box { 
-            background: #111; padding: 40px; border-radius: 20px; width: 90%; max-width: 400px; 
-            border: 1px solid #333; text-align: center; position: relative;
-            transform: scale(0.9); transition: transform 0.3s;
-        }
+        .modal-box { background: #111; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid #333; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
         .modal.open .modal-box { transform: scale(1); }
-        
-        input { 
-            width: 100%; padding: 15px; margin: 10px 0; background: #050505; 
-            border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; font-family: inherit;
-        }
+        input { width: calc(100% - 30px); padding: 15px; margin: 10px 0; background: #050505; border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; font-family: inherit; }
         input:focus { border-color: #fff; }
 
+        /* Стиль для полноэкранного просмотра картинок */
+        .lightbox-img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: var(--primary-glow); }
+        .close-btn { position: absolute; top: 30px; right: 30px; font-size: 2rem; color: #fff; background: none; border: none; cursor: pointer; z-index: 1001; }
+
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
         .reveal { opacity: 0; transform: translateY(50px); transition: all 1s ease; }
         .reveal.active { opacity: 1; transform: translateY(0); }
-
     </style>
 </head>
 <body>
@@ -231,9 +159,11 @@
     <section class="comparison-wrapper reveal">
         <div class="comp-container hover-target" id="compContainer">
             <div class="comp-img">
-                <img src="https://picsum.photos/id/16/1600/900" alt="After"> </div>
+                <img src="https://picsum.photos/id/16/1600/900" alt="After"> 
+            </div>
             <div class="comp-img overlay-img" id="sliderImg">
-                <img src="https://picsum.photos/id/16/1600/900?grayscale" alt="Before"> </div>
+                <img src="https://picsum.photos/id/16/1600/900?grayscale" alt="Before"> 
+            </div>
             <div class="drag-line" id="dragLine">
                 <div class="drag-circle">↔</div>
             </div>
@@ -242,9 +172,9 @@
     </section>
 
     <section class="top-section reveal">
-        <h2 style="font-family: 'Cinzel'; font-size: 2.5rem; letter-spacing: 5px; text-align: center; margin-bottom: 50px;">TOP OF THE WEEK</h2>
+        <h2 style="font-family: 'Cinzel'; font-size: clamp(1.8rem, 5vw, 2.5rem); letter-spacing: 5px; text-align: center; margin-bottom: 50px;">TOP OF THE WEEK</h2>
         <div class="top-grid">
-            <div class="tilt-card hover-target" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+            <div class="tilt-card hover-target" onclick="openLightbox('https://picsum.photos/id/54/800/1200')">
                 <div class="rank">01</div>
                 <img src="https://picsum.photos/id/54/600/800">
                 <div class="card-content">
@@ -252,7 +182,7 @@
                     <p style="color: #888; margin-top: 5px;">@cyber_punk</p>
                 </div>
             </div>
-            <div class="tilt-card hover-target" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+            <div class="tilt-card hover-target" onclick="openLightbox('https://picsum.photos/id/76/800/1200')">
                 <div class="rank">02</div>
                 <img src="https://picsum.photos/id/76/600/800">
                 <div class="card-content">
@@ -260,7 +190,7 @@
                     <p style="color: #888; margin-top: 5px;">@ghost_in_shell</p>
                 </div>
             </div>
-            <div class="tilt-card hover-target" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+            <div class="tilt-card hover-target" onclick="openLightbox('https://picsum.photos/id/48/800/1200')">
                 <div class="rank">03</div>
                 <img src="https://picsum.photos/id/48/600/800">
                 <div class="card-content">
@@ -273,32 +203,34 @@
 
     <section class="reveal">
         <div class="feed-header">
-            <h2 style="font-family: 'Cinzel'; font-size: 2rem;">LATEST DROPS</h2>
+            <h2 style="font-family: 'Cinzel'; font-size: 2rem; margin: 0;">LATEST DROPS</h2>
             <button class="btn-main hover-target" onclick="toggleModal('uploadModal')">+ PUBLISH ART</button>
         </div>
         <div class="feed-grid" id="mainFeed">
             <div class="art-card hover-target">
-                <img src="https://picsum.photos/id/237/600/600" class="art-img">
+                <img src="https://picsum.photos/id/237/600/600" class="art-img" onclick="openLightbox(this.src)">
                 <div class="art-info">
                     <div>
                         <strong style="font-family:'Cinzel'">Black Dog</strong><br>
                         <small style="color:#666">by User_01</small>
                     </div>
+                    <button class="like-btn" onclick="toggleLike(this)">❤</button>
                 </div>
             </div>
              <div class="art-card hover-target">
-                <img src="https://picsum.photos/id/11/600/600" class="art-img">
+                <img src="https://picsum.photos/id/11/600/600" class="art-img" onclick="openLightbox(this.src)">
                 <div class="art-info">
                     <div>
                         <strong style="font-family:'Cinzel'">Green Valley</strong><br>
                         <small style="color:#666">by Nature_Lover</small>
                     </div>
+                    <button class="like-btn" onclick="toggleLike(this)">❤</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <div id="profileModal" class="modal">
+    <div id="profileModal" class="modal" onclick="closeOnOutsideClick(event, 'profileModal')">
         <div class="modal-box">
             <div class="avatar-nav" style="width: 80px; height: 80px; margin: 0 auto 20px; border-radius: 50%;"></div>
             <h2 style="font-family: 'Cinzel'">ARTIST PROFILE</h2>
@@ -311,7 +243,7 @@
         </div>
     </div>
 
-    <div id="uploadModal" class="modal">
+    <div id="uploadModal" class="modal" onclick="closeOnOutsideClick(event, 'uploadModal')">
         <div class="modal-box">
             <h3 style="font-family: 'Cinzel'">UPLOAD MASTERPIECE</h3>
             <input type="text" id="inTitle" placeholder="Art Title">
@@ -321,12 +253,16 @@
         </div>
     </div>
 
+    <div id="lightboxModal" class="modal" onclick="toggleModal('lightboxModal')">
+        <button class="close-btn hover-target">×</button>
+        <img id="lightboxImage" class="lightbox-img" src="" alt="Fullscreen Art">
+    </div>
+
     <script>
-        // --- 1. CANVAS PARTICLES (NEURAL NETWORK EFFECT) ---
+        // --- 1. CANVAS PARTICLES ---
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 
         let particles = [];
         const mouse = { x: null, y: null };
@@ -340,16 +276,13 @@
                 this.speedY = (Math.random() * 1 - 0.5);
             }
             update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
+                this.x += this.speedX; this.y += this.speedY;
                 if(this.x > canvas.width || this.x < 0) this.speedX *= -1;
                 if(this.y > canvas.height || this.y < 0) this.speedY *= -1;
             }
             draw() {
                 ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
 
@@ -362,9 +295,7 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for(let i=0; i<particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                // Соединение линий
+                particles[i].update(); particles[i].draw();
                 for(let j=i; j<particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
@@ -378,10 +309,8 @@
                         ctx.stroke();
                     }
                 }
-                // Реакция на мышь
                 if(mouse.x != null) {
-                    const dx = particles[i].x - mouse.x;
-                    const dy = particles[i].y - mouse.y;
+                    const dx = particles[i].x - mouse.x; const dy = particles[i].y - mouse.y;
                     const distance = Math.sqrt(dx*dx + dy*dy);
                     if (distance < 150) {
                         ctx.beginPath();
@@ -395,80 +324,73 @@
             requestAnimationFrame(animateParticles);
         }
         
-        initParticles();
-        animateParticles();
-        window.addEventListener('resize', () => { 
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
-            initParticles(); 
-        });
+        initParticles(); animateParticles();
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); });
         window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
-        // --- 2. CUSTOM CURSOR & HOVER ---
+        // --- 2. CUSTOM CURSOR ---
         const dot = document.getElementById('cursor-dot');
         const outline = document.getElementById('cursor-outline');
         
-        window.addEventListener('mousemove', function(e) {
-            const posX = e.clientX;
-            const posY = e.clientY;
-            
-            // Точка движется мгновенно
-            dot.style.left = `${posX}px`;
-            dot.style.top = `${posY}px`;
-            
-            // Круг с задержкой для плавности
-            outline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 500, fill: "forwards" });
-        });
+        // Проверяем, поддерживает ли устройство hover, чтобы не запускать скрипт мыши на телефонах
+        if(window.matchMedia("(pointer: fine)").matches) {
+            window.addEventListener('mousemove', function(e) {
+                const posX = e.clientX; const posY = e.clientY;
+                dot.style.left = `${posX}px`; dot.style.top = `${posY}px`;
+                outline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+            });
 
-        // Эффект увеличения курсора на ссылках
-        document.querySelectorAll('.hover-target, button, a, input').forEach(el => {
-            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-        });
+            const setupHover = () => {
+                document.querySelectorAll('.hover-target, button, a, input').forEach(el => {
+                    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+                });
+            };
+            setupHover();
+        }
 
-        // --- 3. COMPARISON SLIDER ---
+        // --- 3. COMPARISON SLIDER (Исправлен тач-скролл) ---
         const sliderContainer = document.getElementById('compContainer');
         const sliderImg = document.getElementById('sliderImg');
         const dragLine = document.getElementById('dragLine');
 
         const moveSlider = (e) => {
             const rect = sliderContainer.getBoundingClientRect();
-            let x = (e.clientX || e.touches[0].clientX) - rect.left;
-            
-            // Границы
-            if(x < 0) x = 0;
-            if(x > rect.width) x = rect.width;
-
+            // Получаем координаты для мыши или касания
+            let x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            if(x < 0) x = 0; if(x > rect.width) x = rect.width;
             const percent = (x / rect.width) * 100;
             sliderImg.style.width = percent + "%";
             dragLine.style.left = percent + "%";
         };
 
         sliderContainer.addEventListener('mousemove', moveSlider);
-        sliderContainer.addEventListener('touchmove', moveSlider);
+        // Добавляем touchmove с preventDefault, чтобы страница не дергалась при смахивании слайдера
+        sliderContainer.addEventListener('touchmove', (e) => {
+            e.preventDefault(); 
+            moveSlider(e);
+        }, { passive: false });
 
-        // --- 4. 3D TILT EFFECT FOR CARDS ---
-        function tilt(e, card) {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = ((y - centerY) / centerY) * -10; // -10 deg max
-            const rotateY = ((x - centerX) / centerX) * 10;
-            
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-        }
-        
-        function resetTilt(card) {
-            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+        // --- 4. 3D TILT EFFECT (Только для ПК) ---
+        const tiltCards = document.querySelectorAll('.tilt-card');
+        if(window.matchMedia("(pointer: fine)").matches) {
+            tiltCards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2; const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -10;
+                    const rotateY = ((x - centerX) / centerX) * 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+                });
+            });
         }
 
-        // --- 5. MODAL LOGIC ---
+        // --- 5. MODALS & LIGHTBOX ---
         function toggleModal(id) {
             const modal = document.getElementById(id);
             if(modal.classList.contains('open')) {
@@ -476,54 +398,61 @@
                 setTimeout(() => modal.style.display = 'none', 300);
             } else {
                 modal.style.display = 'flex';
-                // Небольшой таймаут чтобы сработала CSS анимация opacity
                 setTimeout(() => modal.classList.add('open'), 10);
             }
+        }
+
+        // Закрытие модалки при клике вне окна
+        function closeOnOutsideClick(e, id) {
+            if(e.target.id === id) toggleModal(id);
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightboxImage').src = src;
+            toggleModal('lightboxModal');
+        }
+
+        function toggleLike(btn) {
+            btn.classList.toggle('liked');
+            // Остановка всплытия, чтобы не открывался Lightbox при клике на лайк
+            event.stopPropagation();
         }
 
         // --- 6. PUBLISH LOGIC ---
         function publishArt() {
             const title = document.getElementById('inTitle').value;
             const url = document.getElementById('inUrl').value;
-            
             if(!url) { alert("Enter URL!"); return; }
 
             const card = document.createElement('div');
-            card.className = 'art-card hover-target';
+            card.className = 'art-card hover-target reveal active';
             card.innerHTML = `
-                <img src="${url}" class="art-img">
+                <img src="${url}" class="art-img" onclick="openLightbox(this.src)">
                 <div class="art-info">
                     <div>
                         <strong style="font-family:'Cinzel'">${title || 'Untitled'}</strong><br>
                         <small style="color:#666">by You</small>
                     </div>
+                    <button class="like-btn" onclick="toggleLike(this)">❤</button>
                 </div>
             `;
             
-            // Add interaction to new element
-            card.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-            card.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            if(window.matchMedia("(pointer: fine)").matches) {
+                card.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                card.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            }
 
             const feed = document.getElementById('mainFeed');
             feed.insertBefore(card, feed.firstChild);
             toggleModal('uploadModal');
-            
-            // Clear inputs
-            document.getElementById('inTitle').value = '';
-            document.getElementById('inUrl').value = '';
+            document.getElementById('inTitle').value = ''; document.getElementById('inUrl').value = '';
         }
 
         // --- 7. SCROLL REVEAL ---
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
+            entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('active'); });
         }, { threshold: 0.1 });
-
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
     </script>
 </body>
 </html>
