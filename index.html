@@ -8,11 +8,11 @@
     <style>
         :root {
             --bg: #050505;
-            --surface: #111;
+            --surface: #0a0a0a;
             --accent: #ffffff;
-            --text-dim: #888;
-            --gold: #ffd700;
-            --glass: rgba(255, 255, 255, 0.03);
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary-glow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
         body, html {
@@ -21,214 +21,509 @@
             color: var(--accent);
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
-            cursor: none;
+            cursor: none; /* Скрываем стандартный курсор */
             scroll-behavior: smooth;
         }
 
-        .noise-overlay {
+        /* --- BACKGROUND CANVAS --- */
+        #bgCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.05; pointer-events: none; z-index: 999;
+            z-index: -1; opacity: 0.4; pointer-events: none;
         }
 
-        .cursor {
-            width: 20px; height: 20px; border: 1px solid white; border-radius: 50%;
-            position: fixed; pointer-events: none; z-index: 10000;
-            transform: translate(-50%, -50%); transition: transform 0.1s, width 0.3s, height 0.3s;
-            mix-blend-mode: difference;
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot, .cursor-outline {
+            position: fixed; top: 0; left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%; pointer-events: none; z-index: 9999;
+        }
+        .cursor-dot {
+            width: 8px; height: 8px; background: white;
+        }
+        .cursor-outline {
+            width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: width 0.2s, height 0.2s, background 0.2s;
+        }
+        /* Состояние наведения */
+        body.hovering .cursor-outline {
+            width: 60px; height: 60px; background: rgba(255, 255, 255, 0.1); border-color: transparent;
         }
 
-        /* Навигация и Профиль */
+        /* --- NAVIGATION --- */
         .nav-ui {
-            position: fixed; top: 30px; right: 30px; z-index: 1001;
-            background: var(--glass); backdrop-filter: blur(20px);
-            padding: 10px 25px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; gap: 15px; transition: 0.4s;
+            position: fixed; top: 30px; right: 30px; z-index: 100;
+            background: var(--glass); backdrop-filter: blur(15px);
+            padding: 10px 25px; border-radius: 40px;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 15px;
+            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .nav-ui:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        .avatar-nav { width: 30px; height: 30px; border-radius: 50%; background: #333; border: 1px solid #fff; }
+        .nav-ui:hover { 
+            background: rgba(255,255,255,0.15); 
+            box-shadow: var(--primary-glow);
+            transform: scale(1.05);
+        }
+        .avatar-nav { 
+            width: 30px; height: 30px; border-radius: 50%; 
+            background: url('https://picsum.photos/seed/user/100') center/cover;
+            border: 1px solid #fff; 
+        }
 
-        /* Анимации */
-        .reveal { opacity: 0; transform: translateY(40px); filter: blur(10px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); filter: blur(0); }
-
-        /* Hero */
+        /* --- HERO & GLITCH EFFECT --- */
         .hero {
-            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); text-align: center;
+            height: 100vh; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center;
+            position: relative;
         }
+        
+        .glitch-wrapper { position: relative; }
         .hero h1 {
             font-family: 'Cinzel', serif; font-size: clamp(4rem, 12vw, 9rem); margin: 0;
-            background: linear-gradient(180deg, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            color: #fff; letter-spacing: 5px;
+            position: relative;
+        }
+        
+        /* Глитч анимация */
+        .hero h1::before, .hero h1::after {
+            content: "ECLIPSE"; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); opacity: 0.8;
+        }
+        .hero h1::before {
+            color: #0ff; z-index: -1; animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
+        }
+        .hero h1::after {
+            color: #f0f; z-index: -2; animation: glitch-anim-2 3s infinite linear alternate-reverse;
         }
 
-        /* Кейс со слайдером */
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
+            20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+            40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 2px); }
+            60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+            100% { clip-path: inset(10% 0 60% 0); transform: translate(-1px, 1px); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, -1px); }
+            20% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 2px); }
+            40% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 1px); }
+            60% { clip-path: inset(15% 0 80% 0); transform: translate(-1px, -2px); }
+            100% { clip-path: inset(55% 0 10% 0); transform: translate(1px, 1px); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem; letter-spacing: 8px; color: #888; margin-top: 20px;
+            opacity: 0; animation: fadeUp 1s ease 1s forwards;
+        }
+
+        /* --- SLIDER --- */
         .comparison-wrapper { padding: 100px 0; display: flex; flex-direction: column; align-items: center; }
         .comp-container {
             position: relative; width: 90vw; max-width: 1100px; aspect-ratio: 16/9;
-            border-radius: 8px; overflow: hidden; border: 1px solid #222; cursor: ew-resize;
+            border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .comp-img { position: absolute; inset: 0; }
-        .comp-img img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-        .overlay-img { width: 50%; z-index: 2; border-right: 2px solid white; }
-
-        /* ТОП НЕДЕЛИ */
-        .top-section { padding: 100px 20px; max-width: 1200px; margin: 0 auto; }
-        .top-grid { display: flex; gap: 25px; overflow-x: auto; padding: 30px 0; scrollbar-width: none; }
-        .top-card { 
-            min-width: 350px; height: 500px; border-radius: 20px; overflow: hidden; 
-            position: relative; border: 1px solid #222; transition: 0.5s;
-        }
-        .top-card:hover { border-color: #fff; transform: translateY(-10px); }
-        .rank { position: absolute; top: 20px; left: 20px; background: #fff; color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; z-index: 3; }
-        .card-info { position: absolute; bottom: 0; width: 100%; padding: 40px 20px; background: linear-gradient(transparent, #000); }
-
-        /* ЛЕНТА */
-        .feed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; padding: 50px 0; }
-        .art-card { background: var(--surface); border-radius: 15px; overflow: hidden; border: 1px solid #222; transition: 0.3s; }
-        .art-card:hover { border-color: #444; }
-        .art-img { height: 350px; background-size: cover; background-position: center; }
-        .art-details { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .comp-img { position: absolute; inset: 0; pointer-events: none; }
+        .comp-img img { width: 100%; height: 100%; object-fit: cover; }
+        .overlay-img { width: 50%; z-index: 2; border-right: 2px solid white; will-change: width; }
         
-        .btn-upload { padding: 12px 30px; border-radius: 30px; border: 1px solid #fff; background: none; color: #fff; cursor: pointer; font-family: 'Montserrat'; font-weight: 600; transition: 0.3s; }
-        .btn-upload:hover { background: #fff; color: #000; }
+        .drag-line {
+            position: absolute; top: 0; bottom: 0; left: 50%; width: 40px; transform: translateX(-50%);
+            z-index: 10; cursor: ew-resize; display: flex; align-items: center; justify-content: center;
+        }
+        .drag-circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; }
 
-        /* Модалки */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .modal-content { background: #111; padding: 50px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid #333; text-align: center; }
-        input { width: 100%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        /* --- TOP CARDS (3D TILT) --- */
+        .top-section { padding: 50px 20px; max-width: 1400px; margin: 0 auto; perspective: 1000px; }
+        .top-grid { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
+        
+        .tilt-card {
+            width: 350px; height: 500px; border-radius: 20px; 
+            background: var(--surface); border: 1px solid var(--border);
+            position: relative; overflow: hidden; transition: transform 0.1s;
+            transform-style: preserve-3d;
+        }
+        
+        .tilt-card img {
+            width: 100%; height: 100%; object-fit: cover; 
+            transition: transform 0.5s; position: absolute; inset: 0;
+        }
+        .tilt-card:hover img { transform: scale(1.1); }
+        
+        .card-content {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px;
+            background: linear-gradient(to top, #000 0%, transparent 100%);
+            transform: translateZ(30px); /* 3D pop effect */
+        }
+        .rank { 
+            position: absolute; top: 20px; left: 20px; 
+            font-size: 4rem; font-family: 'Cinzel'; color: rgba(255,255,255,0.1); font-weight: bold;
+            transform: translateZ(20px);
+        }
 
-        .like-btn { background: none; border: 1px solid #333; color: #fff; padding: 8px 15px; border-radius: 20px; cursor: pointer; }
-        .like-btn.active { background: #ff3e3e; border-color: #ff3e3e; }
+        /* --- FEED --- */
+        .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .feed-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 20px 100px 20px; 
+        }
+        
+        .art-card {
+            background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
+            transition: 0.3s; position: relative;
+        }
+        .art-card:hover { transform: translateY(-5px); border-color: #555; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .art-img { height: 300px; width: 100%; object-fit: cover; display: block; }
+        .art-info { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- BUTTONS --- */
+        .btn-main {
+            padding: 12px 30px; background: #fff; color: #000; border: none; border-radius: 30px;
+            font-weight: 700; font-family: 'Montserrat'; cursor: pointer; transition: 0.3s;
+        }
+        .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+
+        /* --- MODALS --- */
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; 
+            display: none; justify-content: center; align-items: center; 
+            backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s;
+        }
+        .modal.open { display: flex; opacity: 1; }
+        .modal-box { 
+            background: #111; padding: 40px; border-radius: 20px; width: 90%; max-width: 400px; 
+            border: 1px solid #333; text-align: center; position: relative;
+            transform: scale(0.9); transition: transform 0.3s;
+        }
+        .modal.open .modal-box { transform: scale(1); }
+        
+        input { 
+            width: 100%; padding: 15px; margin: 10px 0; background: #050505; 
+            border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; font-family: inherit;
+        }
+        input:focus { border-color: #fff; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
 
     </style>
 </head>
 <body>
 
-    <div class="noise-overlay"></div>
-    <div class="cursor" id="cursor"></div>
+    <canvas id="bgCanvas"></canvas>
 
-    <!-- UI: Профиль -->
-    <div class="nav-ui" onclick="toggleModal('profileModal')">
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
+    <div class="nav-ui hover-target" onclick="toggleModal('profileModal')">
         <div class="avatar-nav"></div>
-        <span style="font-size: 0.8rem; letter-spacing: 2px;">PROFIL</span>
+        <span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 600;">PROFILE</span>
     </div>
 
-    <!-- Hero -->
     <section class="hero">
-        <h1 class="reveal">ECLIPSE</h1>
-        <p class="reveal">Digital Art Community • 2026</p>
+        <div class="glitch-wrapper">
+            <h1>ECLIPSE</h1>
+        </div>
+        <p class="subtitle">DIGITAL ART SANCTUARY • 2026</p>
     </section>
 
-    <!-- Слайдер До/После -->
     <section class="comparison-wrapper reveal">
-        <div class="comp-container" id="compBox">
-            <div class="comp-img"><img src="https://images.unsplash.com"></div>
-            <div class="comp-img overlay-img" id="sliderImg"><img src="https://images.unsplash.com"></div>
+        <div class="comp-container hover-target" id="compContainer">
+            <div class="comp-img">
+                <img src="https://picsum.photos/id/16/1600/900" alt="After"> </div>
+            <div class="comp-img overlay-img" id="sliderImg">
+                <img src="https://picsum.photos/id/16/1600/900?grayscale" alt="Before"> </div>
+            <div class="drag-line" id="dragLine">
+                <div class="drag-circle">↔</div>
+            </div>
         </div>
-        <p style="margin-top: 30px; font-size: 0.7rem; letter-spacing: 4px; color: var(--text-dim);">DRAG TO REVEAL PROCESS</p>
+        <p style="margin-top: 30px; font-size: 0.7rem; letter-spacing: 4px; color: #666;">DRAG TO REVEAL PROCESS</p>
     </section>
 
-    <!-- ТОП НЕДЕЛИ -->
     <section class="top-section reveal">
-        <h2 style="font-family: 'Cinzel'; font-size: 2.5rem; letter-spacing: 5px;">TOP WEEKLY</h2>
+        <h2 style="font-family: 'Cinzel'; font-size: 2.5rem; letter-spacing: 5px; text-align: center; margin-bottom: 50px;">TOP OF THE WEEK</h2>
         <div class="top-grid">
-            <div class="top-card">
-                <div class="rank">1</div>
-                <div class="comp-img"><img src="https://images.unsplash.com"></div>
-                <div class="card-info"><h3 style="font-family:'Cinzel'">NEON VOID</h3><p>by Artyom_99</p></div>
+            <div class="tilt-card hover-target" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+                <div class="rank">01</div>
+                <img src="https://picsum.photos/id/54/600/800">
+                <div class="card-content">
+                    <h3 style="font-family:'Cinzel'; margin: 0;">NEON GENESIS</h3>
+                    <p style="color: #888; margin-top: 5px;">@cyber_punk</p>
+                </div>
             </div>
-            <div class="top-card">
-                <div class="rank">2</div>
-                <div class="comp-img"><img src="https://images.unsplash.com"></div>
-                <div class="card-info"><h3 style="font-family:'Cinzel'">SILENCE</h3><p>by Ghost_Art</p></div>
+            <div class="tilt-card hover-target" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+                <div class="rank">02</div>
+                <img src="https://picsum.photos/id/76/600/800">
+                <div class="card-content">
+                    <h3 style="font-family:'Cinzel'; margin: 0;">VOID WALKER</h3>
+                    <p style="color: #888; margin-top: 5px;">@ghost_in_shell</p>
+                </div>
+            </div>
+            <div class="tilt-card hover-target" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+                <div class="rank">03</div>
+                <img src="https://picsum.photos/id/48/600/800">
+                <div class="card-content">
+                    <h3 style="font-family:'Cinzel'; margin: 0;">DARK MATTER</h3>
+                    <p style="color: #888; margin-top: 5px;">@astral_body</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Лента сообщества -->
-    <section style="max-width: 1200px; margin: 0 auto; padding: 100px 20px;" class="reveal">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px;">
-            <h2 style="font-family: 'Cinzel'; font-size: 2rem;">COMMUNITY FEED</h2>
-            <button class="btn-upload" onclick="toggleModal('uploadModal')">+ PUBLISH ART</button>
+    <section class="reveal">
+        <div class="feed-header">
+            <h2 style="font-family: 'Cinzel'; font-size: 2rem;">LATEST DROPS</h2>
+            <button class="btn-main hover-target" onclick="toggleModal('uploadModal')">+ PUBLISH ART</button>
         </div>
         <div class="feed-grid" id="mainFeed">
-            <!-- Сюда добавляются работы -->
+            <div class="art-card hover-target">
+                <img src="https://picsum.photos/id/237/600/600" class="art-img">
+                <div class="art-info">
+                    <div>
+                        <strong style="font-family:'Cinzel'">Black Dog</strong><br>
+                        <small style="color:#666">by User_01</small>
+                    </div>
+                </div>
+            </div>
+             <div class="art-card hover-target">
+                <img src="https://picsum.photos/id/11/600/600" class="art-img">
+                <div class="art-info">
+                    <div>
+                        <strong style="font-family:'Cinzel'">Green Valley</strong><br>
+                        <small style="color:#666">by Nature_Lover</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Модалка Профиля -->
     <div id="profileModal" class="modal">
-        <div class="modal-content">
-            <div class="avatar-nav" style="width: 80px; height: 80px; margin: 0 auto 20px;"></div>
+        <div class="modal-box">
+            <div class="avatar-nav" style="width: 80px; height: 80px; margin: 0 auto 20px; border-radius: 50%;"></div>
             <h2 style="font-family: 'Cinzel'">ARTIST PROFILE</h2>
-            <p style="color: #666;">Level: Pro Explorer</p>
-            <div style="display: flex; justify-content: space-around; margin: 30px 0;">
-                <div><strong>12</strong><br><small>Works</small></div>
-                <div><strong>4.8k</strong><br><small>Likes</small></div>
+            <p style="color: #666;">Status: Digital Nomad</p>
+            <div style="display: flex; justify-content: space-around; margin: 30px 0; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 20px 0;">
+                <div><strong style="font-size: 1.5rem">12</strong><br><small style="color:#666">Works</small></div>
+                <div><strong style="font-size: 1.5rem">8.2k</strong><br><small style="color:#666">Likes</small></div>
             </div>
-            <button class="btn-upload" onclick="toggleModal('profileModal')">CLOSE</button>
+            <button class="btn-main hover-target" onclick="toggleModal('profileModal')">CLOSE</button>
         </div>
     </div>
 
-    <!-- Модалка Загрузки -->
     <div id="uploadModal" class="modal">
-        <div class="modal-content">
-            <h3 style="font-family: 'Cinzel'">UPLOAD ART</h3>
+        <div class="modal-box">
+            <h3 style="font-family: 'Cinzel'">UPLOAD MASTERPIECE</h3>
             <input type="text" id="inTitle" placeholder="Art Title">
-            <input type="text" id="inUrl" placeholder="Image Direct URL">
-            <button class="btn-upload" style="width: 100%; margin-top: 20px; background: #fff; color: #000;" onclick="publishArt()">PUBLISH</button>
-            <button class="btn-upload" style="width: 100%; margin-top: 10px; border: none;" onclick="toggleModal('uploadModal')">CANCEL</button>
+            <input type="text" id="inUrl" placeholder="Image URL (e.g. https://picsum.photos/600)">
+            <button class="btn-main hover-target" style="width: 100%; margin-top: 20px;" onclick="publishArt()">PUBLISH NOW</button>
+            <button class="btn-main hover-target" style="width: 100%; margin-top: 10px; background: transparent; color: #fff; border: 1px solid #333;" onclick="toggleModal('uploadModal')">CANCEL</button>
         </div>
     </div>
 
     <script>
-        // Кастомный курсор
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', e => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
+        // --- 1. CANVAS PARTICLES (NEURAL NETWORK EFFECT) ---
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        // Слайдер
-        const box = document.getElementById('compBox');
-        const sliderImg = document.getElementById('sliderImg');
-        box.addEventListener('mousemove', e => {
-            let x = e.offsetX || e.layerX;
-            sliderImg.style.width = (x / box.offsetWidth) * 100 + '%';
-        });
+        let particles = [];
+        const mouse = { x: null, y: null };
 
-        // Модалки
-        function toggleModal(id) {
-            const m = document.getElementById(id);
-            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() * 1 - 0.5);
+                this.speedY = (Math.random() * 1 - 0.5);
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if(this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if(this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
-        // Публикация (Локальная)
+        function initParticles() {
+            particles = [];
+            let numberOfParticles = (canvas.width * canvas.height) / 15000;
+            for(let i=0; i<numberOfParticles; i++) particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for(let i=0; i<particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                // Соединение линий
+                for(let j=i; j<particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    if(distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255,255,255,${0.1 - distance/1000})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+                // Реакция на мышь
+                if(mouse.x != null) {
+                    const dx = particles[i].x - mouse.x;
+                    const dy = particles[i].y - mouse.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(100,200,255,${0.2 - distance/750})`;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        
+        initParticles();
+        animateParticles();
+        window.addEventListener('resize', () => { 
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+            initParticles(); 
+        });
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+        // --- 2. CUSTOM CURSOR & HOVER ---
+        const dot = document.getElementById('cursor-dot');
+        const outline = document.getElementById('cursor-outline');
+        
+        window.addEventListener('mousemove', function(e) {
+            const posX = e.clientX;
+            const posY = e.clientY;
+            
+            // Точка движется мгновенно
+            dot.style.left = `${posX}px`;
+            dot.style.top = `${posY}px`;
+            
+            // Круг с задержкой для плавности
+            outline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Эффект увеличения курсора на ссылках
+        document.querySelectorAll('.hover-target, button, a, input').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+
+        // --- 3. COMPARISON SLIDER ---
+        const sliderContainer = document.getElementById('compContainer');
+        const sliderImg = document.getElementById('sliderImg');
+        const dragLine = document.getElementById('dragLine');
+
+        const moveSlider = (e) => {
+            const rect = sliderContainer.getBoundingClientRect();
+            let x = (e.clientX || e.touches[0].clientX) - rect.left;
+            
+            // Границы
+            if(x < 0) x = 0;
+            if(x > rect.width) x = rect.width;
+
+            const percent = (x / rect.width) * 100;
+            sliderImg.style.width = percent + "%";
+            dragLine.style.left = percent + "%";
+        };
+
+        sliderContainer.addEventListener('mousemove', moveSlider);
+        sliderContainer.addEventListener('touchmove', moveSlider);
+
+        // --- 4. 3D TILT EFFECT FOR CARDS ---
+        function tilt(e, card) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -10; // -10 deg max
+            const rotateY = ((x - centerX) / centerX) * 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        }
+        
+        function resetTilt(card) {
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+        }
+
+        // --- 5. MODAL LOGIC ---
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if(modal.classList.contains('open')) {
+                modal.classList.remove('open');
+                setTimeout(() => modal.style.display = 'none', 300);
+            } else {
+                modal.style.display = 'flex';
+                // Небольшой таймаут чтобы сработала CSS анимация opacity
+                setTimeout(() => modal.classList.add('open'), 10);
+            }
+        }
+
+        // --- 6. PUBLISH LOGIC ---
         function publishArt() {
             const title = document.getElementById('inTitle').value;
             const url = document.getElementById('inUrl').value;
-            if(!url) return;
+            
+            if(!url) { alert("Enter URL!"); return; }
 
             const card = document.createElement('div');
-            card.className = 'art-card';
+            card.className = 'art-card hover-target';
             card.innerHTML = `
-                <div class="art-img" style="background-image: url('${url}')"></div>
-                <div class="art-details">
-                    <div><strong style="font-family:'Cinzel'">${title}</strong><br><small style="color:#666">by Anonymous</small></div>
-                    <button class="like-btn" onclick="this.classList.toggle('active')">❤</button>
+                <img src="${url}" class="art-img">
+                <div class="art-info">
+                    <div>
+                        <strong style="font-family:'Cinzel'">${title || 'Untitled'}</strong><br>
+                        <small style="color:#666">by You</small>
+                    </div>
                 </div>
             `;
-            document.getElementById('mainFeed').prepend(card);
+            
+            // Add interaction to new element
+            card.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            card.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+
+            const feed = document.getElementById('mainFeed');
+            feed.insertBefore(card, feed.firstChild);
             toggleModal('uploadModal');
+            
+            // Clear inputs
+            document.getElementById('inTitle').value = '';
+            document.getElementById('inUrl').value = '';
         }
 
-        // Reveal Animation
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('active'); });
+        // --- 7. SCROLL REVEAL ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
         }, { threshold: 0.1 });
+
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
     </script>
 </body>
 </html>
-
